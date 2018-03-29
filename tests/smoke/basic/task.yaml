@@ -1,0 +1,6 @@
+summary: build and run basic snap
+
+execute: |
+  snapcraft
+  sudo snap install basic_*.snap --dangerous
+  [ "$(basic.hello)" = "hello world!" ]

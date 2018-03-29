@@ -1,0 +1,7 @@
+summary: run snapcraft init and build the snap
+
+execute: |
+  mkdir init-snap
+  cd init-snap
+  snapcraft init
+  snapcraft

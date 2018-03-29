@@ -1,0 +1,64 @@
+project: snapcraft
+
+environment:
+  SNAPCRAFT_CHANNEL: "$(HOST: echo ${SNAPCRAFT_CHANNEL})"
+
+backends:
+  lxd:
+    systems:
+      - ubuntu-16.04
+      - ubuntu-17.10
+      - ubuntu-18.04:
+          image: ubuntu-daily:18.04
+
+kill-timeout: 30m
+
+prepare: |
+  # apt update is hanging on security.ubuntu.com with IPv6, prefer IPv4 over IPv6
+  cat <<EOF > gai.conf
+  precedence  ::1/128       50
+  precedence  ::/0          40
+  precedence  2002::/16     30
+  precedence ::/96          20
+  precedence ::ffff:0:0/96 100
+  EOF
+  if ! mv gai.conf /etc/gai.conf; then
+    # not writable, disable ipv6 through sysctl
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    rm -f gai.conf
+  fi
+  apt update
+  apt upgrade --yes
+  apt install --yes snapd squashfuse
+  snap install core
+  snap install snapcraft --classic --channel=$SNAPCRAFT_CHANNEL
+
+# Can't do this right now until 2.32 is released so snaps can be removed in lxd
+#restore: |
+#  # Remove all non-critical snaps
+#  for snap in /snap/*; do
+#        snap="${snap:6}"
+#        case "$snap" in
+#            "bin" | "core" | "snapcraft")
+#                # Don't want to remove these
+#                ;;
+#            *)
+#                snap remove "$snap"
+#                ;;
+#        esac
+#    done
+
+suites:
+  tests/smoke/:
+    summary: quick, basic tests of snapcraft
+#    prepare: |
+#      apt install --yes gcc g++ make python3-dev python3-venv libffi-dev libsodium-dev libapt-pkg-dev libarchive13 squashfs-tools xdelta3 bzr git mercurial subversion
+#      mkdir -p /snapcraft/venv
+#      python3 -m venv /snapcraft/venv
+#      # XXX the activate script has an unbound variable.
+#      sed -i '1s/^/set +u\n/' /snapcraft/venv/bin/activate
+#      source /snapcraft/venv/bin/activate
+#      pip install --upgrade pip
+#      pip install -r /snapcraft/requirements.txt -r /snapcraft/requirements-devel.txt
+
+path: /snapcraft/
