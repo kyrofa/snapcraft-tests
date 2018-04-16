@@ -7,9 +7,9 @@ backends:
   lxd:
     systems:
       - ubuntu-16.04
-      - ubuntu-17.10
-      - ubuntu-18.04:
-          image: ubuntu-daily:18.04
+#      - ubuntu-17.10
+#      - ubuntu-18.04:
+#          image: ubuntu-daily:18.04
 
 kill-timeout: 30m
 
@@ -60,5 +60,8 @@ suites:
 #      source /snapcraft/venv/bin/activate
 #      pip install --upgrade pip
 #      pip install -r /snapcraft/requirements.txt -r /snapcraft/requirements-devel.txt
+
+  tests/snap/:
+    summary: tests of snapcraft on individual snaps
 
 path: /snapcraft/
