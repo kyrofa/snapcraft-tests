@@ -1,14 +1,19 @@
 summary: build and run classic snap
 
 prepare: |
-  apt install patchelf -y
+  # patchelf isn't available on all platforms, e.g. trusty
+  apt install patchelf -y || true
 
 execute: |
   # Build the snap
   snapcraft
 
-  # Verify it's been patched correctly
-  patchelf --print-interpreter prime/bin/hello | MATCH "/snap/core/current"
-  patchelf --print-rpath prime/bin/hello | MATCH "/snap/core/current"
   sudo snap install classic-test_*.snap --dangerous --classic
   [ "$(classic-test.hello)" = "hello world!" ]
+
+
+  # Verify it's been patched correctly, assuming patchelf is installed
+  if which patchelf > /dev/null; then
+    patchelf --print-interpreter prime/bin/hello | MATCH "/snap/core/current"
+    patchelf --print-rpath prime/bin/hello | MATCH "/snap/core/current"
+  fi

@@ -10,6 +10,15 @@ backends:
       - ubuntu-17.10
       - ubuntu-18.04:
           image: ubuntu-daily:18.04
+  google:
+    key: "$(HOST: echo $SPREAD_GOOGLE_KEY)"
+    location: computeengine/us-west1-b
+    systems:
+      - ubuntu-14.04-64
+      - ubuntu-16.04-32
+      - ubuntu-16.04-64
+      - ubuntu-18.04-64:
+          image: ubuntu-os-cloud-devel/daily-ubuntu-1804-bionic-v20180417
 
 kill-timeout: 30m
 
@@ -29,7 +38,9 @@ prepare: |
   fi
   apt update
   apt upgrade --yes
-  apt install --yes snapd squashfuse
+  apt install --yes snapd
+  # squashfuse may not be available on all platforms (e.g. trusty)
+  apt install --yes squashfuse || true
   snap install core
   snap install snapcraft --classic --channel=$SNAPCRAFT_CHANNEL
 
