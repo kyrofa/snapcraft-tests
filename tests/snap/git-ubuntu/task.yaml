@@ -3,6 +3,7 @@ warn-timeout: 30m
 kill-timeout: 5h
 
 prepare: |
+  apt install git -y
   # Fetch git-ubuntu
   git clone -b master https://git.launchpad.net/usd-importer
 
